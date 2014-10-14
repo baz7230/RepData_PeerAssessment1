@@ -4,7 +4,8 @@ PA1_template.Rmd
 1. Load the activity data from the directory which stores it  
 2. Process/transform the data (if necessary)  
     a) I ensured the dates were in date format for later manipulation
-```{r getFile, echo=TRUE}
+
+```r
 file_name <-  
  "C://Users/banderson/Desktop/Coursera/C05.Reproducible_Research/activity.csv"
 activity_file <- read.csv(file_name, header=TRUE, sep=",",
@@ -20,7 +21,8 @@ activity_file[,2] <- as.Date(activity_file[,2])
 2. Calculate and report the **mean** and **median** total steps per day  
     a) Mean and median are quite close in this dataset  
 
-```{r histSteps1, echo=TRUE}
+
+```r
 activity_not_NA <- subset(activity_file,!is.na(steps))
 date_agg <- aggregate(steps ~ date, activity_not_NA, sum)
 hist(date_agg$steps, breaks=10, col=rgb(0,1,0,.5), ylim=c(0,20),
@@ -28,22 +30,28 @@ hist(date_agg$steps, breaks=10, col=rgb(0,1,0,.5), ylim=c(0,20),
      main="Total Steps Taken Each Day")
 ```
 
-```{r calcAvg1, echo=TRUE}
+![plot of chunk histSteps1](figure/histSteps1.png) 
+
+
+```r
 mean_steps   <- as.integer(round(mean(date_agg$steps)))
 median_steps <- as.integer(median(date_agg$steps))
 ```
 
-**The mean is `r mean_steps` steps and the median is `r median_steps` steps.**  
+**The mean is 10766 steps and the median is 10765 steps.**  
 
 
 
 I added a plot of steps take on a day-by-day basis to show the scatter around the mean.
 
-```{r plotSteps1, echo=TRUE}
+
+```r
 plot(date_agg$steps, xlab="Individual Days", ylab="Total Steps",
      main="Activity Readings")
 abline(a=mean_steps, b=0, col="red")
 ```
+
+![plot of chunk plotSteps1](figure/plotSteps1.png) 
 
 
 ### What is the average daily activity pattern?
@@ -52,7 +60,8 @@ abline(a=mean_steps, b=0, col="red")
     average # of steps taken, averaged across all days (y-axix)
 2. Which 5-minute interval, on average across all the days in the dataset,  
     contains the maximum number of steps?
-```{r plotByTime1, echo=TRUE}
+
+```r
 interval_agg <- aggregate(steps ~ interval, activity_not_NA, mean)
 plot(interval_agg$interval, interval_agg$steps,
      type = "l", xlab="5-minute intervals where 1200 = Noon",
@@ -61,13 +70,17 @@ abline(v=800, col="blue")
 abline(v=1200, col="red")
 text(700, 175, "8 a.m.", col="blue")
 text(1100, 175, "Noon", col="red")
+```
 
+![plot of chunk plotByTime1](figure/plotByTime1.png) 
+
+```r
 max_steps    <- max(interval_agg$steps)
 max_interval <- interval_agg[which.max(interval_agg$steps),1]
 ```
 
-**It appears that the most average steps (`r max_steps`) are taken in 
-    the `r max_interval` time interval.**  
+**It appears that the most average steps (206.1698) are taken in 
+    the 835 time interval.**  
 
 ### Imputing missing values
 1. Calculate and report the total # of missing values in the dataset  
@@ -79,12 +92,14 @@ max_interval <- interval_agg[which.max(interval_agg$steps),1]
     these values differ from the estimates in the first part of the project?  
     What is the impact of imputing missing data on the estimates of the total  
     daily number of steps?  
-```{r countMissing, echo=TRUE}
+
+```r
 missing_values <- sum(is.na(activity_file$steps))
 ```
-**The number of missing values is `r missing_values`, which is exactly 8 days.**  
+**The number of missing values is 2304, which is exactly 8 days.**  
 
-```{r imputeMean1, echo=TRUE}
+
+```r
 mean_by_interval <- as.data.frame(tapply(X = activity_file$steps, 
         INDEX = list(activity_file$interval), FUN = mean, na.rm=TRUE))
 names(mean_by_interval) <- "steps"
@@ -103,13 +118,17 @@ new_date_agg <- aggregate(steps ~ date, new_activity_file, sum)
 hist(date_agg$steps, breaks=10, col=rgb(0,1,0,.5), ylim=c(0,25),
      xlab="Steps",ylab="Number of days",main="Total Steps by Day")
 hist(new_date_agg$steps, breaks=10, col=rgb(1,0,0,.5), density=c(20),add=TRUE)
+```
 
+![plot of chunk imputeMean1](figure/imputeMean1.png) 
+
+```r
 mean_steps_new   <- as.integer(round(mean(new_date_agg$steps)))
 median_steps_new <- as.integer(median(new_date_agg$steps))
 ```
 
-**The new mean number of steps is `r mean_steps_new` and the new median is 
-`r median_steps_new` steps per day.**  
+**The new mean number of steps is 10766 and the new median is 
+10766 steps per day.**  
 
 You can see in the histogram the original data (in green) and graphed on top  
 of it (in red hash) the data with the imputed values. The only change is eight  
@@ -130,7 +149,8 @@ be expected to change, and median could only be drawn closer to the mean.
     (x-axis) and the avg. # of steps taken, averaged across all weekday days  
     or weekend days (y-axis).
 
-```{r plotDiffDays1, echo=TRUE}
+
+```r
 activity_not_NA$weekday <- weekdays(activity_not_NA[,2])
 new_activity_not_NA     <- activity_not_NA
 
@@ -153,3 +173,5 @@ xyplot(weekday_agg$steps ~ weekday_agg$interval | weekday_agg$weekday
        , main="Time Series of 5 minute intervals across all days"
         )
 ```
+
+![plot of chunk plotDiffDays1](figure/plotDiffDays1.png) 
